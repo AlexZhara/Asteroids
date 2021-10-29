@@ -36,11 +36,12 @@ class Spaceship(GameObject):
 
 	ROTATION_SPEED = 2  # Angle (in degrees) by which ship rotates each frame
 	ACCELERATION = 0.15
+	BULLET_SPEED = 3
 
-
-	def __init__(self, position):
+	def __init__(self, position, create_bullet_callback):
 		super().__init__(position, load_sprite("spaceship_small", "png"), Vector2(0))
 		self.direction = Vector2(UP) # Making a copy of UP to modify later
+		self.create_bullet_callback = create_bullet_callback
 
 	def rotate(self, clockwise=True):
 		"""Changes the direction by rotating it clockwise or anticlockwise
@@ -64,16 +65,24 @@ class Spaceship(GameObject):
 	def brake(self):
 		self.velocity -= self.direction * self.ACCELERATION
 
+	def shoot(self):
+		bullet_velocity = self.BULLET_SPEED * self.direction + self.velocity # Always shoots in direction of ship + adjusts for ship velocity
+		bullet = Bullet(self.position, bullet_velocity)
+		self.create_bullet_callback(bullet)
+
 class Asteroid(GameObject):
 
 	def __init__(self, position):
 		super().__init__(position, load_sprite("asteroid", "png"), get_random_velocity(1, 3))
 
 
+class Bullet(GameObject):
 
+	def __init__(self, position, velocity):
+		super().__init__(position, load_sprite("bullet", "png"), velocity)
 
-
-
+	def move(self, surface):
+		self.position = self.position + self.velocity
 
 
 

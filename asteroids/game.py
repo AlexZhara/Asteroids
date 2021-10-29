@@ -13,12 +13,15 @@ class Asteroids:
 		pygame.init()
 		pygame.display.set_caption("Asteroids")
 
+		# Initialise main screen & game clock
 		self.screen = pygame.display.set_mode((800, 600))
 		self.background = load_sprite("space", "jpeg", False) # args: filename, file extension, is it transparent
 		self.clock = pygame.time.Clock()
 
-		self.spaceship = Spaceship((400, 300))
+		# Initialise game objects
 		self.asteroids = []
+		self.bullets = []
+		self.spaceship = Spaceship((400, 300), self.bullets.append)
 
 		for _ in range(6):
 			while True:
@@ -36,17 +39,22 @@ class Asteroids:
 			self._draw()
 
 	def _get_game_objects(self):
-		game_objects = [*self.asteroids]
+		game_objects = [*self.asteroids, *self.bullets]
+
 		if self.spaceship:
 			game_objects.append(self.spaceship)
 
 		return game_objects
 
 	def _handle_input(self):
+		# Event loop. Handles one time key presses
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT or \
 			(event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
 				quit()
+			elif \
+			(self.spaceship and event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE):
+				self.spaceship.shoot()
 
 		is_key_pressed = pygame.key.get_pressed()
 
@@ -70,6 +78,17 @@ class Asteroids:
 				if asteroid.collides_with(self.spaceship):
 					self.spaceship = None
 					break
+
+		for bullet in self.bullets[:]:
+			for asteroid in self.asteroids[:]:
+				if asteroid.collides_with(bullet):
+					self.asteroids.remove(asteroid)
+					self.bullets.remove(bullet)
+					break
+
+		for bullet in self.bullets[:]: # Creating a copy of bullets list, because removing elements from list while iterating can cause issues
+			if not self.screen.get_rect().collidepoint(bullet.position): # All surfaces have get_rect() method that returns rectangular area.
+				self.bullets.remove(bullet)								 # And each rectangle has a collidepoint() method that checks for collision.
 
 	def _draw(self):
 		self.screen.blit(self.background, (0, 0))
