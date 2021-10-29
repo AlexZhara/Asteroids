@@ -1,10 +1,12 @@
 # asteroids/game.py
 
 import pygame
-from utils import load_sprite
-from models import Spaceship
+from utils import load_sprite, get_random_position
+from models import Spaceship, Asteroid
 
 class Asteroids:
+
+	MIN_ASTEROID_DISTANCE = 250
 	
 	def __init__(self):
 		# Initialise pygame and set the game's title
@@ -16,12 +18,29 @@ class Asteroids:
 		self.clock = pygame.time.Clock()
 
 		self.spaceship = Spaceship((400, 300))
+		self.asteroids = []
+
+		for _ in range(6):
+			while True:
+				position = get_random_position(self.screen)
+				if position.distance_to(self.spaceship.position) > self.MIN_ASTEROID_DISTANCE:
+					break
+
+			self.asteroids.append(Asteroid(position))
+
 
 	def main_loop(self):
 		while True:
 			self._handle_input()
 			self._game_logic()
 			self._draw()
+
+	def _get_game_objects(self):
+		game_objects = [*self.asteroids]
+		if self.spaceship:
+			game_objects.append(self.spaceship)
+
+		return game_objects
 
 	def _handle_input(self):
 		for event in pygame.event.get():
@@ -30,20 +49,45 @@ class Asteroids:
 				quit()
 
 		is_key_pressed = pygame.key.get_pressed()
-		if is_key_pressed[pygame.K_RIGHT]:
-			self.spaceship.rotate(clockwise=True)
-		elif is_key_pressed[pygame.K_LEFT]:
-			self.spaceship.rotate(clockwise=False)
-		elif is_key_pressed[pygame.K_UP]:
-			self.spaceship.accelerate()
-		elif is_key_pressed[pygame.K_DOWN]:
-			self.spaceship.brake()
+
+		if self.spaceship:
+			if is_key_pressed[pygame.K_RIGHT]:
+				self.spaceship.rotate(clockwise=True)
+			elif is_key_pressed[pygame.K_LEFT]:
+				self.spaceship.rotate(clockwise=False)
+			elif is_key_pressed[pygame.K_UP]:
+				self.spaceship.accelerate()
+			elif is_key_pressed[pygame.K_DOWN]:
+				self.spaceship.brake()
 
 	def _game_logic(self):
-		self.spaceship.move(self.screen)
+		#self.spaceship.move(self.screen)
+		for game_object in self._get_game_objects():
+			game_object.move(self.screen)
+
+		if self.spaceship:
+			for asteroid in self.asteroids:
+				if asteroid.collides_with(self.spaceship):
+					self.spaceship = None
+					break
 
 	def _draw(self):
 		self.screen.blit(self.background, (0, 0))
-		self.spaceship.draw(self.screen)
+
+		#self.spaceship.draw(self.screen)
+		for game_object in self._get_game_objects():
+			game_object.draw(self.screen)
+
 		pygame.display.flip()
 		self.clock.tick(60)
+
+
+
+
+
+
+
+
+
+
+
