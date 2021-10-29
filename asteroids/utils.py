@@ -4,6 +4,7 @@
 from pygame.image import load
 from pygame.math import Vector2
 from pygame.mixer import Sound
+from pygame import Color
 from pathlib import Path
 import random
 
@@ -20,6 +21,15 @@ def load_sprite(name, file_type, with_alpha=True):
 def load_sound(name):
 	filepath = Path(__file__).parent / Path("assets/sounds/" + name + ".wav")
 	return Sound(filepath.resolve())
+
+def print_msg(surface, text, font, color=Color("tomato")): # Args: target surface for render, the text, the font, the color
+	text_surface = font.render(text, True, color) # Args: the text, antialiasing flag, color
+
+	rect = text_surface.get_rect()
+	rect.center = Vector2(surface.get_size()) / 2
+
+	surface.blit(text_surface, rect)
+
 
 def wrap_position(position, surface):
 	x, y = position

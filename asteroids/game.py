@@ -1,7 +1,7 @@
 # asteroids/game.py
 
 import pygame
-from utils import load_sprite, get_random_position, load_sound
+from utils import load_sprite, get_random_position, load_sound, print_msg
 from models import Spaceship, Asteroid
 
 class Asteroids:
@@ -17,6 +17,8 @@ class Asteroids:
 		self.screen = pygame.display.set_mode((800, 600))
 		self.background = load_sprite("space", "jpeg", False) # args: filename, file extension, is it transparent
 		self.clock = pygame.time.Clock()
+		self.font = pygame.font.Font(None, 64) # Args: font file (None is default), size in pixels
+		self.message = ""
 
 		# Initialise game objects
 		self.asteroids = []
@@ -86,6 +88,7 @@ class Asteroids:
 			for asteroid in self.asteroids:
 				if asteroid.collides_with(self.spaceship):
 					self.spaceship = None
+					self.message = "You lost!"
 					break
 
 		for bullet in self.bullets[:]:
@@ -102,12 +105,18 @@ class Asteroids:
 			if not self.screen.get_rect().collidepoint(bullet.position): # All surfaces have get_rect() method that returns rectangular area.
 				self.bullets.remove(bullet)								 # And each rectangle has a collidepoint() method that checks for collision.
 
+		if not self.asteroids and self.spaceship:
+			self.message = "You won!"
+
 	def _draw(self):
 		self.screen.blit(self.background, (0, 0))
 
 		#self.spaceship.draw(self.screen)
 		for game_object in self._get_game_objects():
 			game_object.draw(self.screen)
+
+		if self.message:
+			print_msg(self.screen, self.message, self.font)
 
 		pygame.display.flip()
 		self.clock.tick(60)
