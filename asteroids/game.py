@@ -28,6 +28,8 @@ class Asteroids:
 		# Initialise sounds
 		self.rock_smash = load_sound("rock_smash")
 		self.rock_smash.set_volume(0.35)
+		self.explosion = load_sound("explosion")
+		self.explosion.set_volume(0.5)
 
 		self.music = load_sound("Level 3")
 		self.music.set_volume(0.3)
@@ -87,6 +89,7 @@ class Asteroids:
 		if self.spaceship:
 			for asteroid in self.asteroids:
 				if asteroid.collides_with(self.spaceship):
+					self.explosion.play()
 					self.spaceship = None
 					self.message = "You lost!"
 					break
