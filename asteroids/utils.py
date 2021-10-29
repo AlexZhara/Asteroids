@@ -3,6 +3,7 @@
 
 from pygame.image import load
 from pygame.math import Vector2
+from pygame.mixer import Sound
 from pathlib import Path
 import random
 
@@ -15,6 +16,10 @@ def load_sprite(name, file_type, with_alpha=True):
 		return sprite.convert_alpha() # You *could* just return convert_alpha(), but it's more resource intensive than convert()
 
 	return sprite.convert()
+
+def load_sound(name):
+	filepath = Path(__file__).parent / Path("assets/sounds/" + name + ".wav")
+	return Sound(filepath.resolve())
 
 def wrap_position(position, surface):
 	x, y = position

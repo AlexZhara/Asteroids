@@ -1,7 +1,7 @@
 # asteroids/game.py
 
 import pygame
-from utils import load_sprite, get_random_position
+from utils import load_sprite, get_random_position, load_sound
 from models import Spaceship, Asteroid
 
 class Asteroids:
@@ -22,6 +22,15 @@ class Asteroids:
 		self.asteroids = []
 		self.bullets = []
 		self.spaceship = Spaceship((400, 300), self.bullets.append)
+
+		# Initialise sounds
+		self.rock_smash = load_sound("rock_smash")
+		self.rock_smash.set_volume(0.35)
+
+		self.music = load_sound("Level 3")
+		self.music.set_volume(0.3)
+		self.music.play()
+		
 
 		for _ in range(6):
 			while True:
@@ -85,6 +94,8 @@ class Asteroids:
 					self.asteroids.remove(asteroid)
 					self.bullets.remove(bullet)
 					asteroid.split()
+					print(self.rock_smash.get_volume())
+					self.rock_smash.play()
 					break
 
 		for bullet in self.bullets[:]: # Creating a copy of bullets list, because removing elements from list while iterating can cause issues
